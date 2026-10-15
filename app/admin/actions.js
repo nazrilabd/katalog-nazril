@@ -4,6 +4,20 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 
+export async function requireAuth() {
+  const supabase = await createAdminClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error || !user) {
+    throw new Error("Unauthorized");
+  }
+
+  return { supabase, user };
+}
+
 export async function login(prevState, formData) {
   const form = formData instanceof FormData ? formData : prevState;
   const email = form?.get ? form.get("email") : null;
