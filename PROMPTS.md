@@ -130,12 +130,41 @@ Menghapus komponen CatatanBelumAktif dengan tetap mempertahankan tampilan dan la
 
 ## US-06 Proteksi halaman admin
 
-**Prompt:**
+**Prompt: Baca AGENTS.md aturan keamanan nomor 3 dan 4, dan docs/user-stories.md bagian US-06.
 
-**Hasil:**
+Buat file proxy.js di root proyek (Next.js 16). Semua rute /admin kecuali /admin/login wajib login dengan Supabase Auth; kalau belum login, alihkan ke /admin/login. Pastikan juga setiap Server Action yang mengubah data memeriksa login di server. Hapus CatatanBelumAktif dari halaman /admin.**
 
-**Perbaikan:**
+**Hasil: ketika membuka tab samaran dan coba mengakses admin page maka akan teredirect ke halaman login**
+
+**Perbaikan: File yang dibuat & diubah
+
+proxy.js (baru di root)
+
+Menggunakan fitur Proxy Next.js 16 (pengganti middleware.js) untuk memproteksi semua rute di bawah /admin/:path*.
+Memeriksa sesi pengguna via Supabase Auth (supabase.auth.getUser()) menggunakan createServerClient dari @supabase/ssr.
+Mengalihkan (redirect) ke /admin/login jika pengunjung belum login dan membuka halaman admin (misalnya /admin, /admin/password, dll.).
+Mengalihkan pengunjung yang sudah login dari /admin/login langsung ke /admin.
+
+app/admin/actions.js
+
+Menambahkan helper requireAuth() untuk verifikasi sesi admin di sisi server.
+Memastikan setiap aksi yang memodifikasi data (seperti gantiPassword) wajib memvalidasi sesi admin terlebih dahulu sebelum menjalankan mutasi data.
+
+app/admin/page.jsx
+
+Menghapus komponen CatatanBelumAktif dan baris importnya dari halaman /admin.**
 
 ## Debugging dan fitur bonus
 
 Tambahkan bagian baru untuk setiap error yang kamu perbaiki atau fitur bonus yang kamu kerjakan.
+## US-07 Proteksi halaman admin
+**Prompt: Baca docs/user-stories.md bagian US-07. List produk harus diambil dari database di halaman admin**
+
+**Hasil: data produk yang di halaman admin sudah mengambil dari database**
+
+**Perbaikan: File yang diubah
+app/admin/page.jsx
+Mengubah pengambilan daftar produk dari data statis (produkContoh) menjadi query langsung ke tabel produk di database Supabase di sisi server.
+Menjadikan halaman bersifat dinamis (export const dynamic = "force-dynamic").
+Menampilkan pesan error jika query gagal atau menampilkan tulisan "Belum ada produk" jika tabel masih kosong.
+Memasukkan data produk dari database ke komponen TabelProduk.** 
