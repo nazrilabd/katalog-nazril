@@ -80,17 +80,53 @@ app/produk/[id]/page.jsx
 
 Buat login admin memakai Supabase Auth (email dan password) dengan @supabase/ssr dan cookie, memakai SUPABASE_URL dan SUPABASE_PUBLISHABLE_KEY. Login diproses dengan Server Action di app/admin/actions.js dan disambungkan ke form di app/admin/login/page.jsx. Login berhasil diarahkan ke /admin; login gagal menampilkan pesan error yang jelas di halaman login. Buat juga tombol "Keluar" di components/NavAdmin.jsx berfungsi: mengakhiri sesi lalu kembali ke /admin/login. Jangan ubah tampilan. Hapus CatatanBelumAktif dari halaman login.**
 
-**Hasil:**
+**bisa membuka localhost:3000/admin/login, dan jika masuk dengan password salah: muncul pesan error.
+dan berhasil Masuk dengan email dan password bawaan dari Langkah 4**
 
-**Perbaikan:**
+**Perbaikan: File yang dibuat & diubah
+lib/supabase/admin.js (baru)
+Membuat fungsi createAdminClient() menggunakan createServerClient dari @supabase/ssr dan cookie (next/headers).
+Menggunakan SUPABASE_URL dan SUPABASE_PUBLISHABLE_KEY dari environment variable untuk koneksi sesi admin.
+lib/supabase/index.js
+Mengekspor createAdminClient agar dapat diakses dari @/lib/supabase.
+app/admin/actions.js (baru)
+login(prevState, formData): Memvalidasi input, melakukan autentikasi email & password via supabase.auth.signInWithPassword, menyimpan cookie sesi, dan mengarahkan ke /admin jika berhasil atau mengembalikan pesan error (misal: "Email atau password salah.") jika gagal.
+logout(): Memanggil supabase.auth.signOut() untuk mengakhiri sesi auth dan menghapus cookie, lalu mengarahkan kembali ke /admin/login.
+app/admin/login/page.jsx
+Menghubungkan form ke Server Action login menggunakan useActionState.
+Menampilkan pesan error dengan token warna bahaya jika login gagal tanpa mengubah layout dan tampilan form.
+Menghapus komponen CatatanBelumAktif.
+components/NavAdmin.jsx
+Menghubungkan tombol "Keluar" ke Server Action logout menggunakan <form action={logout}> dengan mempertahankan kelas dan tampilan aslinya.**
 
 ## US-05 Ganti password
 
-**Prompt:**
+**Prompt: Baca docs/user-stories.md bagian US-05.
 
-**Hasil:**
+Buat Server Action ganti password di app/admin/actions.js untuk admin yang sedang login, memakai Supabase Auth. Validasi di server: password baru minimal 8 karakter dan harus sama dengan konfirmasi. Tampilkan pesan berhasil atau pesan error yang jelas di halaman. Sambungkan ke form di app/admin/password/page.jsx tanpa mengubah tampilannya. Hapus CatatanBelumAktif dari halaman ini.**
 
-**Perbaikan:**
+**Hasil: bisa mengganti password setelah login**
+
+**Perbaikan: file yang diubah
+
+app/admin/actions.js
+
+Menambahkan Server Action gantiPassword(prevState, formData).
+Melakukan validasi di server:
+Memeriksa kelengkapan input (password_baru dan konfirmasi_password).
+Memeriksa panjang minimal 8 karakter.
+Memeriksa bahwa konfirmasi password cocok dengan password baru.
+Memeriksa sesi login admin di server (supabase.auth.getUser()) sebelum aksi dijalankan (sesuai aturan keamanan poin 3 di AGENTS.md).
+Memperbarui password admin yang sedang aktif menggunakan supabase.auth.updateUser({ password }).
+Mengembalikan pesan sukses atau pesan error yang jelas.
+
+app/admin/password/page.jsx
+
+Menghubungkan form ke Server Action gantiPassword dengan useActionState.
+Menampilkan kotak pesan error (berwarna bahaya) jika validasi atau update gagal.
+Menampilkan kotak pesan berhasil (berwarna utama) jika password sukses diganti.
+Menghapus komponen CatatanBelumAktif dengan tetap mempertahankan tampilan dan layout asli.
+**
 
 ## US-06 Proteksi halaman admin
 
