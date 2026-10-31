@@ -3,12 +3,32 @@ import { notFound } from "next/navigation";
 import TombolWhatsApp from "@/components/TombolWhatsApp";
 import { cariProdukContoh } from "@/lib/data-contoh";
 import { formatRupiah } from "@/lib/format";
+import { createClient } from "@/lib/supabase/server";
 
-// US-02: halaman ini masih memakai data contoh.
-// Tugas peserta: ambil satu produk dari Supabase berdasarkan id, di sisi server.
+export const dynamic = "force-dynamic";
+
 export default async function HalamanDetailProduk({ params }) {
   const { id } = await params;
-  const produk = cariProdukContoh(id);
+  let produk = null;
+
+  try {
+    const supabase = createClient();
+    const { data, error } = await supabase
+      .from("produk")
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (!error && data) {
+      produk = data;
+    }
+  } catch {
+    // Abaikan jika Supabase tidak terhubung
+  }
+
+  if (!produk) {
+    produk = cariProdukContoh(id);
+  }
 
   if (!produk) {
     notFound();

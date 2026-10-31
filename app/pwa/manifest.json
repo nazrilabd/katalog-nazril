@@ -1,0 +1,21 @@
+{
+  "name": "Katalog Produk UMKM",
+  "short_name": "Katalog UMKM",
+  "description": "Katalog produk usaha mikro, kecil, dan menengah dengan kemampuan checkout via WhatsApp.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1d4ed8",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

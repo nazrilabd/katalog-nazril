@@ -168,3 +168,153 @@ Mengubah pengambilan daftar produk dari data statis (produkContoh) menjadi query
 Menjadikan halaman bersifat dinamis (export const dynamic = "force-dynamic").
 Menampilkan pesan error jika query gagal atau menampilkan tulisan "Belum ada produk" jika tabel masih kosong.
 Memasukkan data produk dari database ke komponen TabelProduk.** 
+
+
+## US-08 Tambah Data Produk admin
+**Prompt: Sebagai admin, saya ingin produk pada page `/admin` mengambil data dari database.
+**
+
+**Hasil: admin bisa menambahkan data produk di admin dashboard**
+
+**Perbaikan: File yang diubah
+ 1. actions.js
+      • Menambahkan server action tambahProduk yang memeriksa autentikasi admin di server (supabase.auth.getUser()), memvalidasi input formulir (nama dan harga wajib, harga non-negatif),
+      menyimpan data ke tabel produk di Supabase, merevalidasi cache halaman, lalu mengalihkan ke /admin.
+  2. FormProduk.jsx
+      • Menambahkan dukungan atribut action dan error agar formulir dapat terhubung dengan Server Action serta menampilkan pesan error jika ada validasi yang gagal.
+  3. page.jsx
+      • Mengintegrasikan useActionState dengan tambahProduk dan meneruskannya ke FormProduk.
+      • Menghapus komponen CatatanBelumAktif.** 
+
+
+## US-09 Ubah Data Produk admin
+**Prompt: saya ingin admin dapat mengubah data produk lewat dashboard
+**
+
+**Hasil: admin bisa mengubah data produk lewat dashboard**
+
+**Perbaikan: File yang diubah
+  1. actions.js:
+      • Menambahkan Server Action ubahProduk yang memverifikasi sesi login admin,
+      memvalidasi input (nama, harga non-negatif, dll.), memperbarui data produk di Supabase,
+      merevalidasi cache halaman terkait, lalu mengalihkan ke /admin.
+  2. FormProduk.jsx:
+      • Menambahkan hidden input id saat produk.id tersedia, serta penanganan nilai null
+      pada defaultValue input.
+  3. app/admin/produk/[id]/ubah/FormUbahProduk.jsx file:///D:/nazril/project/katalog-
+  nazril/app/admin/produk/[id]/ubah/FormUbahProduk.jsx:
+      • Membuat Client Component pembungkus yang menghubungkan useActionState dengan Server
+      Action ubahProduk dan menampilkan pesan error jika ada.
+  4. app/admin/produk/[id]/ubah/page.jsx file:///D:/nazril/project/katalog-
+  nazril/app/admin/produk/[id]/ubah/page.jsx:
+      • Mengambil data produk langsung dari tabel produk di database Supabase berdasarkan id
+      di sisi server.
+      • Menghapus komponen CatatanBelumAktif dan pemanggilan cariProdukContoh.** 
+## US-10 Hapus Data Produk admin
+**Prompt: saya ingin admin dapat menghapus data produk lewat dashboard
+**
+
+**Hasil: admin bisa menghapus data produk lewat dashboard**
+
+**Perbaikan: File yang diubah
+    1. actions.js
+      • Menambahkan Server Action hapusProduk yang memverifikasi login admin di sisi server
+      sebelum menghapus data dari tabel produk di Supabase.
+      • Melakukan revalidasi cache rute (/admin, /, dan /produk/[id]) setelah penghapusan
+      berhasil.
+  2. TabelProduk.jsx
+      • Mengubah komponen menjadi Client Component untuk menangani interaksi tombol Hapus.
+      • Menambahkan dialog konfirmasi browser (window.confirm) saat tombol ditekan.
+      • Menambahkan status loading (Menghapus... dan tombol dinonaktifkan) serta penanganan
+      tampilan pesan error jika gagal.
+** 
+
+## US-11 filtering dan category produk
+**Prompt: saya ingin pembeli dapat filtering dan search produk
+**
+
+**Hasil: pembeli bisa search dan filtering lewat category ataupun search**
+
+**Perbaikan: File yang diubah
+ • page.jsx:
+      • Membaca parameter URL q (kata kunci pencarian) dan kategori melalui searchParams.
+      • Mengambil daftar kategori unik secara dinamis dari tabel produk di Supabase.
+      • Menjalankan kueri Supabase dengan filter .ilike("kategori", ...) dan .ilike("nama",
+      ...) di sisi server.
+      • Menambahkan form pencarian nama produk serta tombol filter kategori berbentuk pill
+      (Semua dan daftar kategori).
+      • Menampilkan pesan yang jelas dan tombol reset jika produk yang dicari tidak
+      ditemukan.
+**
+
+## US-12 pilih jumlah atau varian
+**Prompt: saya ingin pembeli dapat memilih jumlan atau varian sebelum pesan lwat wa
+**
+
+**Hasil: pembeli bisa pilih jumlah dan varian sebelum pesan wa**
+
+**Perbaikan: File yang diubah
+
+  1. **`components/TombolWhatsApp.jsx`**
+      • Diubah menjadi Client Component ("use client") untuk mengelola pilihan varian dan
+      jumlah pesanan secara interaktif.
+      • Menambahkan pilihan varian berbasis tombol (pill) dengan pendeteksi otomatis dari
+      atribut produk, deskripsi produk, maupun rekomendasi cerdas sesuai kategori produk.
+      • Menambahkan kolom catatan / request khusus (opsional) untuk pembeli.
+      • Menambahkan pengatur jumlah produk (stepper - / + dan input angka langsung) dengan
+      batas minimum 1.
+      • Menghitung dan menampilkan total harga secara real-time sesuai jumlah yang dipilih.
+      • Memperbarui tautan WhatsApp otomatis agar memuat: nama produk, varian, catatan
+      tambahan, jumlah barang, dan total harga rupiah.
+  2. app/produk/[id]/page.jsx file:///D:/nazril/project/katalog-nazril/app/produk/[id]/page.
+  jsx
+      • Mengambil data detail produk langsung dari database Supabase di sisi server dengan
+      fallback ke data contoh jika Supabase belum terkonfigurasi.
+  3. **`PROMPTS.md`**
+      • Mencatat riwayat implementasi fitur US-12 ke jurnal prompt.
+
+**  
+
+## US-13 – US-50 & K-6 – K-13 (Rencana Implementasi)
+
+**Ringkasan:** Implementasi penuh fitur e‑commerce lanjutan termasuk PWA, AI description, sorting, pagination, related products, gallery, stock status, strike‑through price, badge, cart & WhatsApp checkout, About page, share link, favorites, dark mode, SEO, sitemap, 404, admin upload, dashboard, kategori, search, form validation, CSV export, history, compare, reviews, moderation, analytics, best‑seller, banner, store settings, admin accounts, activity log, CSV import, product ordering, variant pricing, dynamic category pages, AI assistant.
+
+**Langkah utama:**
+1. **Folder & API**
+   - `app/pwa/` manifest & service worker.
+   - `app/api/ai/description/route.js` (Supabase Edge Function) untuk generasi deskripsi AI.
+   - `app/api/products/` endpoints: list (with sorting, pagination), detail, create, update, delete, bulk CSV import/export.
+2. **Komponen UI** di `components/`:
+   - `PWAProvider.jsx`, `ProductCard.jsx` (upgrade untuk badge, stock, harga coret), `Gallery.jsx`, `RelatedProducts.jsx`, `Cart.jsx`, `CheckoutWhatsApp.jsx`, `DarkModeToggle.jsx`, `SEO.js`, `Sitemap.xml` generator, `Error404.jsx`.
+   - Admin UI: `UploadPhoto.jsx`, `Dashboard.jsx`, `CategoryManager.jsx`, `ProductForm.jsx`, `ReviewList.jsx`, `AnalyticsPanel.jsx`, `BannerEditor.jsx`, `StoreSettings.jsx`, `AdminUserManager.jsx`.
+3. **Supabase**
+   - Extend `lib/supabase/server.js` dengan fungsi untuk Storage upload, RLS policies (tidak diubah), dan helper CRUD.
+4. **Keamanan K‑6‑K‑13**
+   - Tambahkan header keamanan di `app/layout.jsx`.
+   - CSP meta tag.
+   - Nonce‑based scripts.
+   - `robots.txt` dengan `noindex` untuk `/admin/*`.
+   - Global error handler (`app/error.jsx`).
+   - Audit dependencies (`npm audit`), update jika ada CVE.
+   - Rate limiting middleware (`app/api/_middleware.js`).
+   - Sanitasi log di `lib/logger.js`.
+5. **Testing & Deploy**
+   - Unit tests di `tests/` untuk API.
+   - CI script di `package.json` → `test`.
+   - Deploy ke Vercel, pastikan env var `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `SUPABASE_PUBLISHABLE_KEY` terpasang.
+
+**Catatan:** Semua perubahan memakai Server Component/Action, tidak ada Supabase client di file “use client”. RLS tetap aktif.
+
+**Perubahan file (contoh):**
+- `app/pwa/manifest.json` (baru)
+- `app/pwa/service-worker.js` (baru)
+- `app/api/ai/description/route.js` (baru)
+- `app/api/products/route.js` (baru)
+- `components/ProductCard.jsx` (modifikasi)
+- `components/Cart.jsx` (baru)
+- `components/DarkModeToggle.jsx` (baru)
+- `lib/supabase/server.js` (tambahan)
+- `proxy.js` (update header keamanan)
+- `PROMPTS.md` (tambahan ini)
+
+*Setelah implementasi, jalankan `npm run dev` dan verifikasi tiap user story di browser.*
